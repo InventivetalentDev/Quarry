@@ -65,7 +65,9 @@ public class Quarry extends JavaPlugin implements Listener {
 			Material.CAKE_BLOCK,
 
 			Material.LAVA,
+			Material.STATIONARY_LAVA,
 			Material.WATER,
+			Material.STATIONARY_WATER,
 			Material.STONE
 
 	};
