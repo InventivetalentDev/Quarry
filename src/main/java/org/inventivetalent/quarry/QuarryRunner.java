@@ -55,10 +55,12 @@ public class QuarryRunner {
 		}
 		breakingItem.setItemMeta(breakingMeta);
 
+		World world = Bukkit.getWorld(data.world);
+		Block chestBlock = world.getBlockAt(data.x, data.y, data.z);
+
 		data.active = true;
 		BukkitTask task = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
 			// Actual block modification
-			World world = Bukkit.getWorld(data.world);
 			Block block = world.getBlockAt(data.digX, data.digY, data.digZ);
 			data.blocksScanned++;
 			if (block.getType() != Material.AIR && block.getType() != Material.BEDROCK) {
@@ -77,7 +79,11 @@ public class QuarryRunner {
 
 					data.blocksMined++;
 
-					Block chestBlock = world.getBlockAt(data.x, data.y, data.z);
+					if (chestBlock.getType() != Material.CHEST) {
+						System.err.println("Quarry block was destroyed while running. Stopping.");
+						stop(hash);
+						return;
+					}
 					Inventory inventory = ((Chest) chestBlock.getState()).getBlockInventory();
 					for (ItemStack item : drops) {
 						HashMap<Integer, ItemStack> overload = inventory.addItem(item);
@@ -95,8 +101,6 @@ public class QuarryRunner {
 				}
 			}
 
-			//			// move around
-			//			//TODO: might change to dig y-columns instead
 			//			if (data.digY < 1) {// reached bedrock
 			//				System.out.println("FINISHED");
 			//				stop(hash);
@@ -114,6 +118,7 @@ public class QuarryRunner {
 			//				data.digX++;
 			//			}
 
+			// move around
 			if (data.digZ > data.z + data.size) {
 				System.out.println("DONE");
 				stop(hash);
