@@ -44,6 +44,7 @@ public class QuarryRunner {
 				: data.speed == 3 ? 5
 				: data.speed == 2 ? 10
 				: data.speed == 1 ? 20 : 40;
+
 		//TODO: get enchantments to work
 		ItemStack breakingItem = new ItemStack(Material.DIAMOND_PICKAXE);
 		ItemMeta breakingMeta = breakingItem.getItemMeta();
@@ -54,6 +55,9 @@ public class QuarryRunner {
 			breakingMeta.addEnchant(Enchantment.SILK_TOUCH, 1, true);
 		}
 		breakingItem.setItemMeta(breakingMeta);
+
+		boolean isSilkTouch = data.hasUpgrade(Upgrade.SILK_TOUCH);
+		boolean isFortune = data.hasUpgrade(Upgrade.FORTUNE);
 
 		World world = Bukkit.getWorld(data.world);
 		Block chestBlock = world.getBlockAt(data.x, data.y, data.z);
@@ -74,7 +78,7 @@ public class QuarryRunner {
 
 				if (!doNotMine && data.shouldMine(block.getType())) {
 					Collection<ItemStack> drops = block.getDrops(breakingItem);
-					block.setType(Material.COBBLESTONE);
+					block.setType(Material.STONE);
 					world.playSound(block.getLocation(), Sound.BLOCK_STONE_BREAK, 1.0f, 1.0f);
 
 					data.blocksMined++;
@@ -85,18 +89,22 @@ public class QuarryRunner {
 						return;
 					}
 					Inventory inventory = ((Chest) chestBlock.getState()).getBlockInventory();
-					for (ItemStack item : drops) {
-						HashMap<Integer, ItemStack> overload = inventory.addItem(item);
-						if (!overload.isEmpty()) {// Chest is full -> stop
-							stop(hash);
-							data.active = false;
+					if (!isFortune && !isSilkTouch) {
+						for (ItemStack item : drops) {
+							HashMap<Integer, ItemStack> overload = inventory.addItem(item);
+							if (!overload.isEmpty()) {// Chest is full -> stop
+								stop(hash);
+								data.active = false;
 
-							//Drop the items that didn't fit into the chest
-							for (ItemStack overloadItem : overload.values()) {
-								chestBlock.getWorld().dropItem(chestBlock.getLocation().add(0.5, 1.5, 0.5), overloadItem);
+								//Drop the items that didn't fit into the chest
+								for (ItemStack overloadItem : overload.values()) {
+									chestBlock.getWorld().dropItem(chestBlock.getLocation().add(0.5, 1.5, 0.5), overloadItem);
+								}
+								return;
 							}
-							return;
 						}
+					}else{
+						//TODO
 					}
 				}
 			}

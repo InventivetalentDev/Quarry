@@ -278,7 +278,7 @@ public class Quarry extends JavaPlugin implements Listener {
 
 		Inventory inventory = Bukkit.createInventory(null, 9, CONTROLS_TITLE);
 
-		inventory.setItem(0, makeItem(Material.HOPPER, "§aFilters"));//TODO
+		inventory.setItem(0, makeItem(Material.HOPPER, "§aFilters"));
 
 		if (data.size <= 4) {
 			inventory.setItem(1, makeItem(Material.WOOD_PLATE, "§a8x8 (Default Size)"));
@@ -296,19 +296,20 @@ public class Quarry extends JavaPlugin implements Listener {
 			inventory.setItem(1, item);
 		}
 
-		if (data.hasUpgrade(Upgrade.FORTUNE) || data.hasUpgrade(Upgrade.SILK_TOUCH)) {
-			List<String> lore = new ArrayList<>();
-			if (data.hasUpgrade(Upgrade.FORTUNE)) {
-				lore.add("§7- Fortune");
-			}
-			if (data.hasUpgrade(Upgrade.SILK_TOUCH)) {
-				lore.add("§7- Silk Touch");
-			}
-			ItemStack itemStack = makeItem(Material.ENCHANTED_BOOK, "§aEnchantment Upgrades", lore);
-			inventory.setItem(7, itemStack);
-		} else {
-			inventory.setItem(7, makeItem(Material.BOOK, "§7No Enchantment upgrades"));
-		}
+		//TODO
+//		if (data.hasUpgrade(Upgrade.FORTUNE) || data.hasUpgrade(Upgrade.SILK_TOUCH)) {
+//			List<String> lore = new ArrayList<>();
+//			if (data.hasUpgrade(Upgrade.FORTUNE)) {
+//				lore.add("§7- Fortune");
+//			}
+//			if (data.hasUpgrade(Upgrade.SILK_TOUCH)) {
+//				lore.add("§7- Silk Touch");
+//			}
+//			ItemStack itemStack = makeItem(Material.ENCHANTED_BOOK, "§aEnchantment Upgrades", lore);
+//			inventory.setItem(7, itemStack);
+//		} else {
+//			inventory.setItem(7, makeItem(Material.BOOK, "§7No Enchantment upgrades"));
+//		}
 
 		if (data.speed == 0) {
 			inventory.setItem(8, makeItem(Material.WOOD_PICKAXE, "§aDefault Speed"));
