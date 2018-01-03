@@ -140,8 +140,6 @@ public class QuarryRunner {
 				data.digY--;
 			}
 
-			System.out.println(data.digX + "  " + data.digY + "  " + data.digZ);
-
 		}, 20L, (long) speed);
 		taskMap.put(hash, task);
 	}
