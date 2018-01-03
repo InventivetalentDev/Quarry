@@ -103,6 +103,11 @@ public class Quarry extends JavaPlugin implements Listener {
 		if (event.getBlock().getType() == Material.CHEST) {// only check if the chest is the last block placed (for now) TODO
 			boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());
 			if (isQuarryStructure) {
+				if (!event.getPlayer().hasPermission("quarry.create")) {
+					event.getPlayer().sendMessage(PREFIX + "§cYou don't have permission to create a quarry!");
+					return;
+				}
+
 				/* TODO: get this working...
 				// Rotate the dispenser (just aesthetic stuff, really)
 				Block dispenserBlock = event.getBlock().getRelative(BlockFace.DOWN);
@@ -153,7 +158,6 @@ public class Quarry extends JavaPlugin implements Listener {
 				return false;
 			}
 		}
-		System.out.println("Dispenser contents match");
 		return true;
 	}
 
@@ -164,6 +168,7 @@ public class Quarry extends JavaPlugin implements Listener {
 			Block chestBlock = null;
 			if (event.getBlock().getType() == Material.CHEST) {
 				//				chestBlock = event.getBlock();
+				//TODO: check quarry owner before destroying
 
 				boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());// Test with the chest as the base block
 				if (isQuarryStructure) {
