@@ -1,5 +1,6 @@
 package org.inventivetalent.quarry;
 
+import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -85,6 +86,8 @@ public class Quarry extends JavaPlugin implements Listener {
 		}, 40L);
 
 		Bukkit.getPluginManager().registerEvents(this, this);
+
+		new MetricsLite(this);
 	}
 
 	@Override
