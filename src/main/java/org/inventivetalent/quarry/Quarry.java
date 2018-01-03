@@ -272,6 +272,16 @@ public class Quarry extends JavaPlugin implements Listener {
 					boolean isQuarryStructure = Structure.QUARRY.test(event.getClickedBlock());// Test with the chest as the base block
 					if (isQuarryStructure) {
 						event.setCancelled(true);
+						QuarryData data = this.registry.getByLocation(event.getClickedBlock().getLocation());
+						if (data == null) {
+							return;
+						}
+						if (!event.getPlayer().getUniqueId().equals(data.owner)) {
+							if (!event.getPlayer().hasPermission("quarry.admin")) {
+								event.getPlayer().sendMessage(PREFIX + "§cYou don't have access to this quarry");
+								return;
+							}
+						}
 						openControlsInventory(event.getPlayer(), event.getClickedBlock().getLocation());
 					}
 				}
