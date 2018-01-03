@@ -129,7 +129,8 @@ public class Quarry extends JavaPlugin implements Listener {
 				dispenser.setCustomName(DISPENSER_IDENTIFIER);
 
 				// Register
-				this.registry.register(event.getBlock().getLocation());
+				QuarryData data = this.registry.register(event.getBlock().getLocation());
+				data.owner = event.getPlayer().getUniqueId();
 
 				//TODO: permissions + proper message
 				event.getPlayer().sendMessage(PREFIX+"§aQuarry created!");

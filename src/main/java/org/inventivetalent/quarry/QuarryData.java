@@ -9,6 +9,7 @@ import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class QuarryData {
 
@@ -29,6 +30,8 @@ public class QuarryData {
 	public int blocksTotal;
 	public int blocksScanned;
 	public int blocksMined;
+
+	public UUID owner;
 
 	private final String hash;
 
@@ -96,53 +99,6 @@ public class QuarryData {
 		return false;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) { return true; }
-		if (o == null || getClass() != o.getClass()) { return false; }
-
-		QuarryData that = (QuarryData) o;
-
-		if (x != that.x) { return false; }
-		if (y != that.y) { return false; }
-		if (z != that.z) { return false; }
-		if (active != that.active) { return false; }
-		if (digX != that.digX) { return false; }
-		if (digY != that.digY) { return false; }
-		if (digZ != that.digZ) { return false; }
-		if (speed != that.speed) { return false; }
-		if (size != that.size) { return false; }
-		if (blocksTotal != that.blocksTotal) { return false; }
-		if (blocksScanned != that.blocksScanned) { return false; }
-		if (blocksMined != that.blocksMined) { return false; }
-		if (!world.equals(that.world)) { return false; }
-		if (!filters.equals(that.filters)) { return false; }
-		if (filterMode != that.filterMode) { return false; }
-		if (!upgrades.equals(that.upgrades)) { return false; }
-		return hash.equals(that.hash);
-	}
-
-	@Override
-	public int hashCode() {
-		int result = world.hashCode();
-		result = 31 * result + x;
-		result = 31 * result + y;
-		result = 31 * result + z;
-		result = 31 * result + (active ? 1 : 0);
-		result = 31 * result + digX;
-		result = 31 * result + digY;
-		result = 31 * result + digZ;
-		result = 31 * result + filters.hashCode();
-		result = 31 * result + filterMode.hashCode();
-		result = 31 * result + upgrades.hashCode();
-		result = 31 * result + speed;
-		result = 31 * result + size;
-		result = 31 * result + blocksTotal;
-		result = 31 * result + blocksScanned;
-		result = 31 * result + blocksMined;
-		result = 31 * result + hash.hashCode();
-		return result;
-	}
 
 	public JsonObject serialize() {
 		JsonObject main = new JsonObject();
@@ -162,6 +118,7 @@ public class QuarryData {
 		main.addProperty("blocksTotal", this.blocksTotal);
 		main.addProperty("blocksScanned", this.blocksScanned);
 		main.addProperty("blocksMined",this.blocksMined);
+		main.addProperty("owner", this.owner.toString());
 
 		JsonArray filterArray = new JsonArray();
 		for (Material filter : this.filters) {
@@ -197,6 +154,7 @@ public class QuarryData {
 		data.blocksTotal = json.get("blocksTotal").getAsInt();
 		data.blocksScanned = json.get("blocksScanned").getAsInt();
 		data.blocksMined = json.get("blocksMined").getAsInt();
+		data.owner = UUID.fromString(json.get("owner").getAsString());
 
 		JsonArray filterArray = json.get("filters").getAsJsonArray();
 		for (JsonElement element : filterArray) {
