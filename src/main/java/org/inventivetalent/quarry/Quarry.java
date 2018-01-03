@@ -177,7 +177,7 @@ public class Quarry extends JavaPlugin implements Listener {
 				if (isQuarryStructure) {
 					QuarryData data = this.registry.getByLocation(event.getBlock().getLocation());
 					if (!event.getPlayer().getUniqueId().equals(data.owner)) {
-						if (!event.getPlayer().hasPermission("quarry.destroyall")) {
+						if (!event.getPlayer().hasPermission("quarry.admin")) {
 							event.getPlayer().sendMessage(PREFIX + "§cYou cannot destroy other players' quarries!");
 							event.setCancelled(true);
 							return;
