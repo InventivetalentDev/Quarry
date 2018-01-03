@@ -32,6 +32,7 @@ import java.util.Set;
 public class Quarry extends JavaPlugin implements Listener {
 
 	static final           String      PREFIX               = "§8[§9Quarry§8]§r ";
+	static final           String      TOOLTIP_PREFIX       = "§1[§6!§1]§r ";
 	static final           ItemStack[] DISPENSER_LAYOUT     = new ItemStack[] {
 			new ItemStack(Material.REDSTONE), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.REDSTONE),
 			new ItemStack(Material.DIAMOND), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.DIAMOND),
@@ -176,6 +177,10 @@ public class Quarry extends JavaPlugin implements Listener {
 				boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());// Test with the chest as the base block
 				if (isQuarryStructure) {
 					QuarryData data = this.registry.getByLocation(event.getBlock().getLocation());
+					if (data == null) {
+						event.getPlayer().sendMessage(PREFIX + "§o§cInvalid quarry");
+						return;
+					}
 					if (!event.getPlayer().getUniqueId().equals(data.owner)) {
 						if (!event.getPlayer().hasPermission("quarry.admin")) {
 							event.getPlayer().sendMessage(PREFIX + "§cYou cannot destroy other players' quarries!");
@@ -274,6 +279,7 @@ public class Quarry extends JavaPlugin implements Listener {
 						event.setCancelled(true);
 						QuarryData data = this.registry.getByLocation(event.getClickedBlock().getLocation());
 						if (data == null) {
+							event.getPlayer().sendMessage(PREFIX + "§o§cInvalid quarry");
 							return;
 						}
 						if (!event.getPlayer().getUniqueId().equals(data.owner)) {
@@ -292,24 +298,25 @@ public class Quarry extends JavaPlugin implements Listener {
 	void openControlsInventory(Player player, Location quarryLocation) {
 		QuarryData data = this.registry.getByLocation(quarryLocation);
 		if (data == null) {
-			player.sendMessage(PREFIX + "§cInvalid quarry!");
+			player.sendMessage(PREFIX + "§o§cInvalid quarry");
 			return;
 		}
 
 		Inventory inventory = Bukkit.createInventory(null, 9, CONTROLS_TITLE);
 
-		inventory.setItem(0, makeItem(Material.HOPPER, "§aFilters"));
+		inventory.setItem(0, makeItem(Material.HOPPER, "§aFilters", Collections.singletonList(TOOLTIP_PREFIX + "§7Click to edit the material filters")));
 
+		String sizeTooltip = TOOLTIP_PREFIX + "§7Drag a §8Stone§7, §fIron§7, or §6Gold§7 pressure plate here";
 		if (data.size <= 4) {
-			inventory.setItem(1, makeItem(Material.WOOD_PLATE, "§a8x8 (Default Size)"));
+			inventory.setItem(1, makeItem(Material.WOOD_PLATE, "§a8x8 (Default Size)", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 8) {
-			inventory.setItem(1, makeItem(Material.STONE_PLATE, "§bSize: 16x16"));
+			inventory.setItem(1, makeItem(Material.STONE_PLATE, "§bSize: 16x16", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 16) {
-			inventory.setItem(1, makeItem(Material.IRON_PLATE, "§bSize: 32x32"));
+			inventory.setItem(1, makeItem(Material.IRON_PLATE, "§bSize: 32x32", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 32) {
-			inventory.setItem(1, makeItem(Material.GOLD_PLATE, "§bSize: 64x64"));
+			inventory.setItem(1, makeItem(Material.GOLD_PLATE, "§bSize: 64x64", Collections.singletonList(sizeTooltip)));
 		} else if (data.size > 32) {
-			ItemStack item = makeItem(Material.GOLD_PLATE, "§b" + (data.size * 2) + "x" + (data.size * 2) + " (Custom Size)");
+			ItemStack item = makeItem(Material.GOLD_PLATE, "§b" + (data.size * 2) + "x" + (data.size * 2) + " (Custom Size)", Collections.singletonList(sizeTooltip));
 			ItemMeta meta = item.getItemMeta();
 			meta.addEnchant(Enchantment.DURABILITY, 1, true);
 			item.setItemMeta(meta);
@@ -331,13 +338,16 @@ public class Quarry extends JavaPlugin implements Listener {
 		//			inventory.setItem(7, makeItem(Material.BOOK, "§7No Enchantment upgrades"));
 		//		}
 
+		String speedTooltip = TOOLTIP_PREFIX + "§7Drag a §8Stone§7, §fIron§7 or §bDiamond§7 pickaxe here";
 		if (data.speed == 0) {
-			inventory.setItem(8, makeItem(Material.WOOD_PICKAXE, "§aDefault Speed"));
+			inventory.setItem(8, makeItem(Material.WOOD_PICKAXE, "§aDefault Speed", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 1) {
-			inventory.setItem(8, makeItem(Material.STONE_PICKAXE, "§bSpeed Upgrade 1"));
+			inventory.setItem(8, makeItem(Material.STONE_PICKAXE, "§bSpeed Upgrade 1", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 2) {
-			inventory.setItem(8, makeItem(Material.IRON_PICKAXE, "§bSpeed Upgrade 2"));
-		} else if (data.speed == 3) { inventory.setItem(8, makeItem(Material.DIAMOND_PICKAXE, "§bSpeed Upgrade 3")); }
+			inventory.setItem(8, makeItem(Material.IRON_PICKAXE, "§bSpeed Upgrade 2", Collections.singletonList(speedTooltip)));
+		} else if (data.speed == 3) {
+			inventory.setItem(8, makeItem(Material.DIAMOND_PICKAXE, "§bSpeed Upgrade 3", Collections.singletonList(speedTooltip)));
+		}
 
 		ItemStack startStopItem;
 		if (data.active) {
