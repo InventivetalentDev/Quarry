@@ -28,6 +28,7 @@ import java.util.*;
 
 public class Quarry extends JavaPlugin implements Listener {
 
+	static final String PREFIX = "§8[§9Quarry§8]§r ";
 	static final           ItemStack[] DISPENSER_LAYOUT     = new ItemStack[] {
 			new ItemStack(Material.REDSTONE), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.REDSTONE),
 			new ItemStack(Material.DIAMOND), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.DIAMOND),
@@ -101,7 +102,6 @@ public class Quarry extends JavaPlugin implements Listener {
 		if (event.getBlock() == null) { return; }
 		if (event.getBlock().getType() == Material.CHEST) {// only check if the chest is the last block placed (for now) TODO
 			boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());
-			event.getPlayer().sendMessage("Quarry Structure: " + isQuarryStructure);
 			if (isQuarryStructure) {
 				/* TODO: get this working...
 				// Rotate the dispenser (just aesthetic stuff, really)
@@ -117,7 +117,7 @@ public class Quarry extends JavaPlugin implements Listener {
 				Dispenser dispenser = (Dispenser) dispenserBlock.getState();
 				// Test dispenser content
 				if (!testDispenserContent(dispenser)) {
-					event.getPlayer().sendMessage("§cInvalid dispenser contents for Quarry");
+					event.getPlayer().sendMessage(PREFIX+"§cInvalid dispenser contents for Quarry");
 					return;
 				}
 
@@ -127,8 +127,8 @@ public class Quarry extends JavaPlugin implements Listener {
 				this.registry.register(event.getBlock().getLocation());
 
 				//TODO: permissions + proper message
-				event.getPlayer().sendMessage("§aQuarry created!");
-				event.getPlayer().sendMessage("§7Sneak + Right-Click to open the menu");
+				event.getPlayer().sendMessage(PREFIX+"§aQuarry created!");
+				event.getPlayer().sendMessage(PREFIX+"§7Sneak + Right-Click to open the menu");
 			}
 		}
 	}
@@ -175,7 +175,7 @@ public class Quarry extends JavaPlugin implements Listener {
 					// Unregister
 					this.registry.unregister(event.getBlock().getLocation());
 
-					event.getPlayer().sendMessage("§cQuarry destroyed");
+					event.getPlayer().sendMessage(PREFIX+"§cQuarry destroyed");
 				}
 				return;
 			} else if (event.getBlock().getType() == Material.DISPENSER) {
@@ -265,7 +265,7 @@ public class Quarry extends JavaPlugin implements Listener {
 	void openControlsInventory(Player player, Location quarryLocation) {
 		QuarryData data = this.registry.getByLocation(quarryLocation);
 		if (data == null) {
-			player.sendMessage("§cInvalid quarry!");
+			player.sendMessage(PREFIX + "§cInvalid quarry!");
 			return;
 		}
 
@@ -381,7 +381,7 @@ public class Quarry extends JavaPlugin implements Listener {
 	void openFilterInventory(Player player, Location quarryLocation) {
 		QuarryData data = this.registry.getByLocation(quarryLocation);
 		if (data == null) {
-			player.sendMessage("§cInvalid quarry!");
+			player.sendMessage(PREFIX + "§cInvalid quarry!");
 			return;
 		}
 
@@ -414,13 +414,13 @@ public class Quarry extends JavaPlugin implements Listener {
 			if (event.getCurrentItem() != null) {
 				Block targetBlock = event.getWhoClicked().getTargetBlock((Set<Material>) null, 5);
 				if (targetBlock == null) {
-					event.getWhoClicked().sendMessage("§cNot looking at a quarry block");
+					event.getWhoClicked().sendMessage(PREFIX + "§cNot looking at a quarry block");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
 				QuarryData data = this.registry.getByLocation(targetBlock.getLocation());
 				if (data == null) {
-					event.getWhoClicked().sendMessage("§cInvalid quarry");
+					event.getWhoClicked().sendMessage(PREFIX + "§cInvalid quarry");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
@@ -434,11 +434,11 @@ public class Quarry extends JavaPlugin implements Listener {
 						this.runner.stop(data.getHash());
 
 						data.active = false;
-						event.getWhoClicked().sendMessage("§bQuarry stopped");
+						event.getWhoClicked().sendMessage(PREFIX + "§bQuarry stopped");
 					} else {
 						this.runner.start(data);
 
-						event.getWhoClicked().sendMessage("§bQuarry started");
+						event.getWhoClicked().sendMessage(PREFIX + "§bQuarry started");
 					}
 					event.getWhoClicked().closeInventory();
 				} else if (item.getType() == Material.WOOD_PICKAXE || item.getType() == Material.STONE_PICKAXE || item.getType() == Material.IRON_PICKAXE || item.getType() == Material.DIAMOND_PICKAXE) {
@@ -512,13 +512,13 @@ public class Quarry extends JavaPlugin implements Listener {
 			if (event.getCurrentItem() != null) {
 				Block targetBlock = event.getWhoClicked().getTargetBlock((Set<Material>) null, 5);
 				if (targetBlock == null) {
-					event.getWhoClicked().sendMessage("§cNot looking at a quarry block");
+					event.getWhoClicked().sendMessage(PREFIX + "§cNot looking at a quarry block");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
 				QuarryData data = this.registry.getByLocation(targetBlock.getLocation());
 				if (data == null) {
-					event.getWhoClicked().sendMessage("§cInvalid quarry");
+					event.getWhoClicked().sendMessage(PREFIX + "§cInvalid quarry");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
