@@ -32,7 +32,7 @@ import java.util.Set;
 public class Quarry extends JavaPlugin implements Listener {
 
 	static final           String      PREFIX               = "§8[§9Quarry§8]§r ";
-	static final           String      TOOLTIP_PREFIX       = "§1[§6!§1]§r ";
+	static final           String      TOOLTIP_PREFIX       = "§3[§6!§3]§r ";
 	static final           ItemStack[] DISPENSER_LAYOUT     = new ItemStack[] {
 			new ItemStack(Material.REDSTONE), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.REDSTONE),
 			new ItemStack(Material.DIAMOND), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.DIAMOND),
