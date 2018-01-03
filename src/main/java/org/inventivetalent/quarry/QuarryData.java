@@ -47,7 +47,6 @@ public class QuarryData {
 		this.z = z;
 
 		this.hash = QuarryRegistry.makeLocationHash(world, x, y, z);
-		System.out.println("Hash: " + this.hash);
 	}
 
 	public String getHash() {

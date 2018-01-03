@@ -160,11 +160,9 @@ public class Quarry extends JavaPlugin implements Listener {
 		if (event.getBlock().getType() == Material.CHEST || event.getBlock().getType() == Material.DISPENSER || event.getBlock().getType() == Material.FENCE) {
 			Block chestBlock = null;
 			if (event.getBlock().getType() == Material.CHEST) {
-				System.out.println("Broke chest");
 				//				chestBlock = event.getBlock();
 
 				boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());// Test with the chest as the base block
-				event.getPlayer().sendMessage("Quarry Structure: " + isQuarryStructure);
 				if (isQuarryStructure) {
 					String hash = QuarryRegistry.makeLocationHash(event.getBlock().getLocation().getWorld().getName(), event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
 
@@ -178,10 +176,8 @@ public class Quarry extends JavaPlugin implements Listener {
 				}
 				return;
 			} else if (event.getBlock().getType() == Material.DISPENSER) {
-				System.out.println("Broke dispenser");
 				chestBlock = event.getBlock().getRelative(BlockFace.UP);
 			} else if (event.getBlock().getType() == Material.FENCE) {
-				System.out.println("Broke fence");
 				// Search for the center dispenser block
 				BlockFace[] faces = new BlockFace[] {
 						BlockFace.NORTH,
@@ -195,7 +191,6 @@ public class Quarry extends JavaPlugin implements Listener {
 				for (BlockFace face : faces) {
 					Block adjacent = event.getBlock().getRelative(face);
 					if (adjacent.getType() == Material.DISPENSER) {
-						System.out.println("Found dispenser on first try");
 						// Found dispenser directly
 						dispenserBlock = adjacent;
 						break;
@@ -204,13 +199,11 @@ public class Quarry extends JavaPlugin implements Listener {
 					}
 				}
 				if (dispenserBlock == null) {
-					System.out.println("Couldn't find dispenser on first try");
 					// Couldn't find the dispenser
 					if (lastFenceBlock == null) { return; }// There's also no further fence blocks to check, so give up
 					for (BlockFace face : faces) {
 						Block adjacent = lastFenceBlock.getRelative(face);
 						if (adjacent.getType() == Material.DISPENSER) {
-							System.out.println("Found dispenser on second try");
 							// Found dispenser finally
 							dispenserBlock = adjacent;
 							break;
@@ -220,16 +213,13 @@ public class Quarry extends JavaPlugin implements Listener {
 				}
 
 				if (dispenserBlock != null) {
-					System.out.println("Found dispenser");
 					// We have a dispenser, so try to get the chest from there
 					chestBlock = dispenserBlock.getRelative(BlockFace.UP);
 				}
 			}
 
 			if (chestBlock != null && chestBlock.getType() == Material.CHEST) {
-				System.out.println("Found chest block");
 				boolean isQuarryStructure = Structure.QUARRY.test(chestBlock);// Test with the chest as the base block
-				event.getPlayer().sendMessage("Quarry Structure: " + isQuarryStructure);
 				if (isQuarryStructure) {
 					event.setCancelled(true);
 				}
@@ -433,7 +423,6 @@ public class Quarry extends JavaPlugin implements Listener {
 				}
 
 				ItemStack item = event.getCurrentItem();
-				System.out.println(item);
 				if (item.getType() == Material.HOPPER) {
 					event.getWhoClicked().closeInventory();
 					openFilterInventory((Player) event.getWhoClicked(), targetBlock.getLocation());
@@ -472,11 +461,9 @@ public class Quarry extends JavaPlugin implements Listener {
 					ItemStack cursor = event.getCursor();
 					if (cursor == null) { return; }
 					if (cursor.getType() == Material.ENCHANTED_BOOK) {
-						System.out.println(cursor);
 						ItemMeta meta = cursor.getItemMeta();
 						if (meta instanceof EnchantmentStorageMeta) {
 							EnchantmentStorageMeta enchMeta = (EnchantmentStorageMeta) meta;
-							System.out.println(enchMeta.getStoredEnchants());
 
 							if (enchMeta.getStoredEnchants().containsKey(Enchantment.SILK_TOUCH)) {
 								data.addUpgrade(Upgrade.SILK_TOUCH);
@@ -534,7 +521,6 @@ public class Quarry extends JavaPlugin implements Listener {
 				}
 
 				ItemStack item = event.getCurrentItem();
-				System.out.println(item);
 				if (item.getType() == Material.WOOL) {// filter mode toggle
 					ItemMeta meta = item.getItemMeta();
 					if (meta.getDisplayName() != null && "§aFilter Mode".equals(meta.getDisplayName())) {
@@ -550,14 +536,11 @@ public class Quarry extends JavaPlugin implements Listener {
 						}, 1);
 					}
 				} else {// All other items added/removed as filter
-					System.out.println(event.getClickedInventory().getTitle());
 					if (!FILTERS_TITLE.equals(event.getClickedInventory().getTitle())) {
 						//						event.setCancelled(false);
 						return;
 					}
 					ItemStack cursor = event.getCursor();
-					System.out.println(cursor);
-					System.out.println(event.getSlot());
 					if (item.getType() == Material.AIR && cursor != null && cursor.getType() != Material.AIR) {
 						data.addFilter(cursor.getType());
 					} else if (item.getType() != Material.AIR && (cursor == null || cursor.getType() == Material.AIR)) {

@@ -72,7 +72,6 @@ public class Structure {
 			}
 		}
 		if (relativeBlockPos == null) {
-			System.out.println("Block not found in structure");
 			return false;
 		}
 
@@ -93,10 +92,6 @@ public class Structure {
 					Material testMaterial = testBlock.getType();
 
 					if (testMaterial != structureMaterial) {
-						System.out.println("Material mismatch");
-						System.out.println("T: " + testMaterial);
-						System.out.println("S: " + structureMaterial);
-
 						// materials don't match -> stop and return false
 						return false;
 					}else{

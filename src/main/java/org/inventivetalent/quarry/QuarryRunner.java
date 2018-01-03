@@ -128,7 +128,6 @@ public class QuarryRunner {
 
 			// move around
 			if (data.digZ > data.z + data.size) {
-				System.out.println("DONE");
 				stop(hash);
 				data.active = false;
 			} else if (data.digX > data.x + data.size) {
