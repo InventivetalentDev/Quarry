@@ -24,11 +24,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public class Quarry extends JavaPlugin implements Listener {
 
-	static final String PREFIX = "§8[§9Quarry§8]§r ";
+	static final           String      PREFIX               = "§8[§9Quarry§8]§r ";
 	static final           ItemStack[] DISPENSER_LAYOUT     = new ItemStack[] {
 			new ItemStack(Material.REDSTONE), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.REDSTONE),
 			new ItemStack(Material.DIAMOND), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.DIAMOND),
@@ -122,7 +125,7 @@ public class Quarry extends JavaPlugin implements Listener {
 				Dispenser dispenser = (Dispenser) dispenserBlock.getState();
 				// Test dispenser content
 				if (!testDispenserContent(dispenser)) {
-					event.getPlayer().sendMessage(PREFIX+"§cInvalid dispenser contents for Quarry");
+					event.getPlayer().sendMessage(PREFIX + "§cInvalid dispenser contents for Quarry");
 					return;
 				}
 
@@ -133,8 +136,8 @@ public class Quarry extends JavaPlugin implements Listener {
 				data.owner = event.getPlayer().getUniqueId();
 
 				//TODO: permissions + proper message
-				event.getPlayer().sendMessage(PREFIX+"§aQuarry created!");
-				event.getPlayer().sendMessage(PREFIX+"§7Sneak + Right-Click to open the menu");
+				event.getPlayer().sendMessage(PREFIX + "§aQuarry created!");
+				event.getPlayer().sendMessage(PREFIX + "§7Sneak + Right-Click to open the menu");
 			}
 		}
 	}
@@ -169,19 +172,26 @@ public class Quarry extends JavaPlugin implements Listener {
 			Block chestBlock = null;
 			if (event.getBlock().getType() == Material.CHEST) {
 				//				chestBlock = event.getBlock();
-				//TODO: check quarry owner before destroying
 
 				boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());// Test with the chest as the base block
 				if (isQuarryStructure) {
-					String hash = QuarryRegistry.makeLocationHash(event.getBlock().getLocation().getWorld().getName(), event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ());
+					QuarryData data = this.registry.getByLocation(event.getBlock().getLocation());
+					if (!event.getPlayer().getUniqueId().equals(data.owner)) {
+						if (!event.getPlayer().hasPermission("quarry.destroyall")) {
+							event.getPlayer().sendMessage(PREFIX + "§cYou cannot destroy other players' quarries!");
+							return;
+						} else {
+							event.getPlayer().sendMessage(PREFIX + "§o§cYou destroyed a quarry that is owned by another player");
+						}
+					}
 
 					// Stop quarry
-					this.runner.stop(hash);
+					this.runner.stop(data.getHash());
 
 					// Unregister
 					this.registry.unregister(event.getBlock().getLocation());
 
-					event.getPlayer().sendMessage(PREFIX+"§cQuarry destroyed");
+					event.getPlayer().sendMessage(PREFIX + "§cQuarry destroyed");
 				}
 				return;
 			} else if (event.getBlock().getType() == Material.DISPENSER) {
@@ -296,19 +306,19 @@ public class Quarry extends JavaPlugin implements Listener {
 		}
 
 		//TODO
-//		if (data.hasUpgrade(Upgrade.FORTUNE) || data.hasUpgrade(Upgrade.SILK_TOUCH)) {
-//			List<String> lore = new ArrayList<>();
-//			if (data.hasUpgrade(Upgrade.FORTUNE)) {
-//				lore.add("§7- Fortune");
-//			}
-//			if (data.hasUpgrade(Upgrade.SILK_TOUCH)) {
-//				lore.add("§7- Silk Touch");
-//			}
-//			ItemStack itemStack = makeItem(Material.ENCHANTED_BOOK, "§aEnchantment Upgrades", lore);
-//			inventory.setItem(7, itemStack);
-//		} else {
-//			inventory.setItem(7, makeItem(Material.BOOK, "§7No Enchantment upgrades"));
-//		}
+		//		if (data.hasUpgrade(Upgrade.FORTUNE) || data.hasUpgrade(Upgrade.SILK_TOUCH)) {
+		//			List<String> lore = new ArrayList<>();
+		//			if (data.hasUpgrade(Upgrade.FORTUNE)) {
+		//				lore.add("§7- Fortune");
+		//			}
+		//			if (data.hasUpgrade(Upgrade.SILK_TOUCH)) {
+		//				lore.add("§7- Silk Touch");
+		//			}
+		//			ItemStack itemStack = makeItem(Material.ENCHANTED_BOOK, "§aEnchantment Upgrades", lore);
+		//			inventory.setItem(7, itemStack);
+		//		} else {
+		//			inventory.setItem(7, makeItem(Material.BOOK, "§7No Enchantment upgrades"));
+		//		}
 
 		if (data.speed == 0) {
 			inventory.setItem(8, makeItem(Material.WOOD_PICKAXE, "§aDefault Speed"));
