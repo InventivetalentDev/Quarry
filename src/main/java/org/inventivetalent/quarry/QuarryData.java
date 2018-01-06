@@ -3,6 +3,7 @@ package org.inventivetalent.quarry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -122,13 +123,13 @@ public class QuarryData {
 
 		JsonArray filterArray = new JsonArray();
 		for (Material filter : this.filters) {
-			filterArray.add(filter.name());
+			filterArray.add(new JsonPrimitive(filter.name()));
 		}
 		main.add("filters", filterArray);
 
 		JsonArray upgradeArray = new JsonArray();
 		for (Upgrade upgrade : this.upgrades) {
-			upgradeArray.add(upgrade.name());
+			upgradeArray.add(new JsonPrimitive(upgrade.name()));
 		}
 		main.add("upgrades", upgradeArray);
 
