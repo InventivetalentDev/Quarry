@@ -69,8 +69,8 @@ public class QuarryRunner {
 			data.blocksScanned++;
 			if (block.getType() != Material.AIR && block.getType() != Material.BEDROCK) {
 				boolean doNotMine = false;
-				for (Material material : Quarry.DO_NOT_MINE) {
-					if (material == block.getType()) {
+				for (String material : Quarry.DO_NOT_MINE) {
+					if (material.equals(block.getType().name())) {
 						doNotMine = true;
 						break;
 					}

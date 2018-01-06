@@ -41,40 +41,40 @@ public class Quarry extends JavaPlugin implements Listener {
 	static final           String      DISPENSER_IDENTIFIER = "%%QUARRY%DISPENSER%%";
 	static final           String      CONTROLS_TITLE       = "§5Quarry Controls§r";
 	static final           String      FILTERS_TITLE        = "§bQuarry Filter§r";
-	protected static final Material[]  DO_NOT_MINE          = new Material[] {
-			Material.LONG_GRASS,
-			Material.YELLOW_FLOWER,
-			Material.RED_ROSE,
-			Material.SAPLING,
-			Material.BROWN_MUSHROOM,
-			Material.RED_MUSHROOM,
-			Material.WATER_LILY,
-			Material.VINE,
-			Material.WEB,
-			Material.SNOW,
-			Material.CARPET,
-			Material.END_ROD,
-			Material.DOUBLE_PLANT,
-			Material.FLOWER_POT,
-			Material.BANNER,
-			Material.SKULL,
-			Material.SIGN,
-			Material.BED,
-			Material.RAILS,
-			Material.ACTIVATOR_RAIL,
-			Material.DETECTOR_RAIL,
-			Material.POWERED_RAIL,
-			Material.REDSTONE,
-			Material.REDSTONE_COMPARATOR,
-			Material.TRIPWIRE_HOOK,
-			Material.TRIPWIRE,
-			Material.CAKE_BLOCK,
+	protected static final String[]  DO_NOT_MINE          = new String[] {
+			"LONG_GRASS",
+			"YELLOW_FLOWER",
+			"RED_ROSE",
+			"SAPLING",
+			"BROWN_MUSHROOM",
+			"RED_MUSHROOM",
+			"WATER_LILY",
+			"VINE",
+			"WEB",
+			"SNOW",
+			"CARPET",
+			"END_ROD",
+			"DOUBLE_PLANT",
+			"FLOWER_POT",
+			"BANNER",
+			"SKULL",
+			"SIGN",
+			"BED",
+			"RAILS",
+			"ACTIVATOR_RAIL",
+			"DETECTOR_RAIL",
+			"POWERED_RAIL",
+			"REDSTONE",
+			"REDSTONE_COMPARATOR",
+			"TRIPWIRE_HOOK",
+			"TRIPWIRE",
+			"CAKE_BLOCK",
 
-			Material.LAVA,
-			Material.STATIONARY_LAVA,
-			Material.WATER,
-			Material.STATIONARY_WATER,
-			Material.STONE
+			"LAVA",
+			"STATIONARY_LAVA",
+			"WATER",
+			"STATIONARY_WATER",
+			"STONE"
 
 	};
 
@@ -130,7 +130,7 @@ public class Quarry extends JavaPlugin implements Listener {
 					return;
 				}
 
-				dispenser.setCustomName(DISPENSER_IDENTIFIER);
+//				dispenser.setCustomName(DISPENSER_IDENTIFIER);
 
 				// Register
 				QuarryData data = this.registry.register(event.getBlock().getLocation());
