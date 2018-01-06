@@ -41,7 +41,7 @@ public class Quarry extends JavaPlugin implements Listener {
 	static final           String      DISPENSER_IDENTIFIER = "%%QUARRY%DISPENSER%%";
 	static final           String      CONTROLS_TITLE       = "§5Quarry Controls§r";
 	static final           String      FILTERS_TITLE        = "§bQuarry Filter§r";
-	protected static final String[]  DO_NOT_MINE          = new String[] {
+	protected static final String[]    DO_NOT_MINE          = new String[] {
 			"LONG_GRASS",
 			"YELLOW_FLOWER",
 			"RED_ROSE",
@@ -130,7 +130,7 @@ public class Quarry extends JavaPlugin implements Listener {
 					return;
 				}
 
-//				dispenser.setCustomName(DISPENSER_IDENTIFIER);
+				//				dispenser.setCustomName(DISPENSER_IDENTIFIER);
 
 				// Register
 				QuarryData data = this.registry.register(event.getBlock().getLocation());
@@ -533,6 +533,8 @@ public class Quarry extends JavaPlugin implements Listener {
 					} else {
 						return;
 					}
+					// Reset current dig location after changing the size, or the quarry will just continue where it left off
+					data.digX = data.digY = data.digZ = 0;
 
 					event.setCurrentItem(null);
 					event.setCancelled(false);
