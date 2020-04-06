@@ -9,9 +9,9 @@ public class Structure {
 
 	public static final Structure QUARRY = new Structure(new Material[][][] {
 			{
-					{ Material.FENCE, Material.FENCE, Material.FENCE },
-					{ Material.FENCE, Material.DISPENSER, Material.FENCE },
-					{ Material.FENCE, Material.FENCE, Material.FENCE }
+					{ Material.OAK_FENCE, Material.OAK_FENCE, Material.OAK_FENCE },
+					{ Material.OAK_FENCE, Material.DISPENSER, Material.OAK_FENCE },
+					{ Material.OAK_FENCE, Material.OAK_FENCE, Material.OAK_FENCE }
 			},
 			{
 					{ null, null, null },

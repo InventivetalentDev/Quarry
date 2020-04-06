@@ -19,18 +19,19 @@ public class QuarryData {
 	public final int    y;
 	public final int    z;
 
-	public boolean active;
-	public int     digX;
-	public int     digY;
-	public int     digZ;
+	public       boolean        active;
+	public       int            digX;
+	public       int            digY;
+	public       int            digZ;
 	public final List<Material> filters    = new ArrayList<>();//TODO: should probably also contain block data (maybe wait for 1.13)
 	public       FilterMode     filterMode = FilterMode.BLACKLIST;
 	public final List<Upgrade>  upgrades   = new ArrayList<>();
 	public       int            speed      = 0;
 	public       int            size       = 4;
-	public int blocksTotal;
-	public int blocksScanned;
-	public int blocksMined;
+	public       int            fuel       = 0;
+	public       int            blocksTotal;
+	public       int            blocksScanned;
+	public       int            blocksMined;
 
 	public UUID owner;
 
@@ -100,7 +101,6 @@ public class QuarryData {
 		return false;
 	}
 
-
 	public JsonObject serialize() {
 		JsonObject main = new JsonObject();
 		main.addProperty("hash", this.hash);
@@ -115,10 +115,11 @@ public class QuarryData {
 
 		main.addProperty("speed", this.speed);
 		main.addProperty("size", this.size);
+		main.addProperty("fuel", this.fuel);
 		main.addProperty("filterMode", this.filterMode.name());
 		main.addProperty("blocksTotal", this.blocksTotal);
 		main.addProperty("blocksScanned", this.blocksScanned);
-		main.addProperty("blocksMined",this.blocksMined);
+		main.addProperty("blocksMined", this.blocksMined);
 		main.addProperty("owner", this.owner.toString());
 
 		JsonArray filterArray = new JsonArray();
@@ -151,6 +152,7 @@ public class QuarryData {
 
 		data.speed = json.get("speed").getAsInt();
 		data.size = json.get("size").getAsInt();
+		data.fuel = json.has("fuel") ? json.get("fuel").getAsInt() : 0;
 		data.filterMode = FilterMode.valueOf(json.get("filterMode").getAsString());
 		data.blocksTotal = json.get("blocksTotal").getAsInt();
 		data.blocksScanned = json.get("blocksScanned").getAsInt();

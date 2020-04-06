@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
+import org.bukkit.block.data.type.Fence;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -169,7 +171,7 @@ public class Quarry extends JavaPlugin implements Listener {
 	@EventHandler
 	public void on(BlockBreakEvent event) {
 		if (event.getBlock() == null) { return; }
-		if (event.getBlock().getType() == Material.CHEST || event.getBlock().getType() == Material.DISPENSER || event.getBlock().getType() == Material.FENCE) {
+		if (event.getBlock().getType() == Material.CHEST || event.getBlock().getType() == Material.DISPENSER || event.getBlock().getType().name().contains("_FENCE")) {
 			Block chestBlock = null;
 			if (event.getBlock().getType() == Material.CHEST) {
 				//				chestBlock = event.getBlock();
@@ -202,7 +204,7 @@ public class Quarry extends JavaPlugin implements Listener {
 				return;
 			} else if (event.getBlock().getType() == Material.DISPENSER) {
 				chestBlock = event.getBlock().getRelative(BlockFace.UP);
-			} else if (event.getBlock().getType() == Material.FENCE) {
+			} else if (Fence.class.isAssignableFrom(event.getBlock().getType().data)) {
 				// Search for the center dispenser block
 				BlockFace[] faces = new BlockFace[] {
 						BlockFace.NORTH,
@@ -219,7 +221,7 @@ public class Quarry extends JavaPlugin implements Listener {
 						// Found dispenser directly
 						dispenserBlock = adjacent;
 						break;
-					} else if (adjacent.getType() == Material.FENCE) {
+					} else if (Fence.class.isAssignableFrom(adjacent.getType().data)) {
 						lastFenceBlock = adjacent;
 					}
 				}
@@ -308,15 +310,15 @@ public class Quarry extends JavaPlugin implements Listener {
 
 		String sizeTooltip = TOOLTIP_PREFIX + "§7Drag a §8Stone§7, §fIron§7, or §6Gold§7 pressure plate here";
 		if (data.size <= 4) {
-			inventory.setItem(1, makeItem(Material.WOOD_PLATE, "§a8x8 (Default Size)", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.OAK_PRESSURE_PLATE, "§a8x8 (Default Size)", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 8) {
-			inventory.setItem(1, makeItem(Material.STONE_PLATE, "§bSize: 16x16", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.STONE_PRESSURE_PLATE, "§bSize: 16x16", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 16) {
-			inventory.setItem(1, makeItem(Material.IRON_PLATE, "§bSize: 32x32", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.HEAVY_WEIGHTED_PRESSURE_PLATE, "§bSize: 32x32", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 32) {
-			inventory.setItem(1, makeItem(Material.GOLD_PLATE, "§bSize: 64x64", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "§bSize: 64x64", Collections.singletonList(sizeTooltip)));
 		} else if (data.size > 32) {
-			ItemStack item = makeItem(Material.GOLD_PLATE, "§b" + (data.size * 2) + "x" + (data.size * 2) + " (Custom Size)", Collections.singletonList(sizeTooltip));
+			ItemStack item = makeItem(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "§b" + (data.size * 2) + "x" + (data.size * 2) + " (Custom Size)", Collections.singletonList(sizeTooltip));
 			ItemMeta meta = item.getItemMeta();
 			meta.addEnchant(Enchantment.DURABILITY, 1, true);
 			item.setItemMeta(meta);
@@ -340,7 +342,7 @@ public class Quarry extends JavaPlugin implements Listener {
 
 		String speedTooltip = TOOLTIP_PREFIX + "§7Drag a §8Stone§7, §fIron§7 or §bDiamond§7 pickaxe here";
 		if (data.speed == 0) {
-			inventory.setItem(8, makeItem(Material.WOOD_PICKAXE, "§aDefault Speed", Collections.singletonList(speedTooltip)));
+			inventory.setItem(8, makeItem(Material.WOODEN_PICKAXE, "§aDefault Speed", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 1) {
 			inventory.setItem(8, makeItem(Material.STONE_PICKAXE, "§bSpeed Upgrade 1", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 2) {
@@ -351,7 +353,7 @@ public class Quarry extends JavaPlugin implements Listener {
 
 		ItemStack startStopItem;
 		if (data.active) {
-			startStopItem = makeItem(Material.WOOL, "§cStop");
+			startStopItem = makeItem(Material.RED_WOOL, "§cStop");
 			startStopItem.setDurability((short) 14);
 
 			//TODO: get this stuff working
@@ -361,7 +363,7 @@ public class Quarry extends JavaPlugin implements Listener {
 			//			System.out.println(item);
 			//			System.out.println(item.getData());
 		} else {
-			startStopItem = makeItem(Material.WOOL, "§aStart");
+			startStopItem = makeItem(Material.GREEN_WOOL, "§aStart");
 			startStopItem.setDurability((short) 13);
 			//			MaterialData materialData = item.getData();
 			//			((Wool) materialData).setColor(DyeColor.GREEN);
@@ -429,12 +431,10 @@ public class Quarry extends JavaPlugin implements Listener {
 		}
 
 		if (data.filterMode == FilterMode.WHITELIST) {
-			ItemStack item = makeItem(Material.WOOL, "§aFilter Mode", Collections.singletonList("§fWhitelist"));
-			item.setDurability((short) 0);
+			ItemStack item = makeItem(Material.WHITE_WOOL, "§aFilter Mode", Collections.singletonList("§fWhitelist"));
 			inventory.setItem(26, item);
 		} else if (data.filterMode == FilterMode.BLACKLIST) {
-			ItemStack item = makeItem(Material.WOOL, "§aFilter Mode", Collections.singletonList("§8Blacklist"));
-			item.setDurability((short) 15);
+			ItemStack item = makeItem(Material.BLACK_WOOL, "§aFilter Mode", Collections.singletonList("§8Blacklist"));
 			inventory.setItem(26, item);
 		}
 
@@ -444,8 +444,9 @@ public class Quarry extends JavaPlugin implements Listener {
 	@EventHandler
 	public void on(InventoryClickEvent event) {
 		Inventory inventory = event.getClickedInventory();
+		InventoryView inventoryView = event.getView();
 		if (inventory == null) { return; }
-		if (CONTROLS_TITLE.equals(inventory.getTitle())) {
+		if (CONTROLS_TITLE.equals(inventoryView.getTitle()) && (inventoryView.getTopInventory() == event.getClickedInventory())) {
 			event.setCancelled(true);
 
 			if (event.getCurrentItem() != null) {
@@ -466,7 +467,7 @@ public class Quarry extends JavaPlugin implements Listener {
 				if (item.getType() == Material.HOPPER) {
 					event.getWhoClicked().closeInventory();
 					openFilterInventory((Player) event.getWhoClicked(), targetBlock.getLocation());
-				} else if (item.getType() == Material.WOOL) {
+				} else if (item.getType().name().contains("_WOOL")) {
 					if (data.active) {
 						this.runner.stop(data.getHash());
 
@@ -478,7 +479,7 @@ public class Quarry extends JavaPlugin implements Listener {
 						event.getWhoClicked().sendMessage(PREFIX + "§bQuarry started");
 					}
 					event.getWhoClicked().closeInventory();
-				} else if (item.getType() == Material.WOOD_PICKAXE || item.getType() == Material.STONE_PICKAXE || item.getType() == Material.IRON_PICKAXE || item.getType() == Material.DIAMOND_PICKAXE) {
+				} else if (item.getType() == Material.WOODEN_PICKAXE || item.getType() == Material.STONE_PICKAXE || item.getType() == Material.IRON_PICKAXE || item.getType() == Material.DIAMOND_PICKAXE) {
 					ItemStack cursor = event.getCursor();
 					if (cursor == null) { return; }
 					if (cursor.getType() == Material.STONE_PICKAXE) {
@@ -521,14 +522,14 @@ public class Quarry extends JavaPlugin implements Listener {
 							}, 1);
 						}
 					}
-				} else if (item.getType() == Material.WOOD_PLATE || item.getType() == Material.STONE_PLATE || item.getType() == Material.GOLD_PLATE || item.getType() == Material.IRON_PLATE) {
+				} else if (item.getType().name().contains("_PRESSURE_PLATE")) {
 					ItemStack cursor = event.getCursor();
 					if (cursor == null) { return; }
-					if (cursor.getType() == Material.STONE_PLATE) {
+					if (cursor.getType() == Material.STONE_PRESSURE_PLATE) {
 						data.size = 8;
-					} else if (cursor.getType() == Material.IRON_PLATE) {
+					} else if (cursor.getType() == Material.HEAVY_WEIGHTED_PRESSURE_PLATE) {
 						data.size = 16;
-					} else if (cursor.getType() == Material.GOLD_PLATE) {
+					} else if (cursor.getType() == Material.LIGHT_WEIGHTED_PRESSURE_PLATE) {
 						data.size = 32;
 					} else {
 						return;
@@ -545,10 +546,10 @@ public class Quarry extends JavaPlugin implements Listener {
 					}, 1);
 				}
 			}
-		} else if (FILTERS_TITLE.equals(inventory.getTitle())) {
+		} else if (FILTERS_TITLE.equals(inventoryView.getTitle())) {
 			event.setCancelled(true);
 
-			if (event.getCurrentItem() != null) {
+//			if (event.getCurrentItem() != null) {
 				Block targetBlock = event.getWhoClicked().getTargetBlock((Set<Material>) null, 5);
 				if (targetBlock == null) {
 					event.getWhoClicked().sendMessage(PREFIX + "§cNot looking at a quarry block");
@@ -563,29 +564,26 @@ public class Quarry extends JavaPlugin implements Listener {
 				}
 
 				ItemStack item = event.getCurrentItem();
-				if (item.getType() == Material.WOOL) {// filter mode toggle
-					ItemMeta meta = item.getItemMeta();
-					if (meta.getDisplayName() != null && "§aFilter Mode".equals(meta.getDisplayName())) {
-						if (data.filterMode == FilterMode.WHITELIST) {
-							data.filterMode = FilterMode.BLACKLIST;
-						} else {
-							data.filterMode = FilterMode.WHITELIST;
-						}
-
-						Bukkit.getScheduler().runTaskLater(this, () -> {
-							event.getWhoClicked().closeInventory();
-							openFilterInventory((Player) event.getWhoClicked(), targetBlock.getLocation());
-						}, 1);
+				if (item!=null&&item.getType().name().contains("_WOOL") && "§aFilter Mode".equals(item.getItemMeta().getDisplayName())) {// filter mode toggle
+					if (data.filterMode == FilterMode.WHITELIST) {
+						data.filterMode = FilterMode.BLACKLIST;
+					} else {
+						data.filterMode = FilterMode.WHITELIST;
 					}
+
+					Bukkit.getScheduler().runTaskLater(this, () -> {
+						event.getWhoClicked().closeInventory();
+						openFilterInventory((Player) event.getWhoClicked(), targetBlock.getLocation());
+					}, 1);
 				} else {// All other items added/removed as filter
-					if (!FILTERS_TITLE.equals(event.getClickedInventory().getTitle())) {
-						//						event.setCancelled(false);
+					if (event.getClickedInventory() != inventoryView.getTopInventory()) {
+						event.setCancelled(false);
 						return;
 					}
 					ItemStack cursor = event.getCursor();
-					if (item.getType() == Material.AIR && cursor != null && cursor.getType() != Material.AIR) {
+					if ((item==null||item.getType() == Material.AIR) && cursor != null && cursor.getType() != Material.AIR) {
 						data.addFilter(cursor.getType());
-					} else if (item.getType() != Material.AIR && (cursor == null || cursor.getType() == Material.AIR)) {
+					} else if ((item!=null&&item.getType() != Material.AIR) && (cursor == null || cursor.getType() == Material.AIR)) {
 						data.removeFilter(item.getType());
 					}
 
@@ -598,7 +596,7 @@ public class Quarry extends JavaPlugin implements Listener {
 					Bukkit.getScheduler().runTaskLater(this, new Runnable() {
 						@Override
 						public void run() {
-							((Player) event.getWhoClicked()).updateInventory();
+							((Player)event.getWhoClicked()).updateInventory();
 						}
 					}, 1);
 
@@ -610,7 +608,7 @@ public class Quarry extends JavaPlugin implements Listener {
 					//						openFilterInventory((Player) event.getWhoClicked(), targetBlock.getLocation());
 					//					}, 1);
 				}
-			}
+//			}
 		}
 	}
 

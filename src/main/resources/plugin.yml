@@ -3,3 +3,4 @@ main: org.inventivetalent.quarry.Quarry
 author: inventivetalent
 version: ${project.version}
 website: https://inventivetalent.org
+api-version: '1.13'
