@@ -48,16 +48,19 @@ public class QuarryRunner {
 		//TODO: get enchantments to work
 		ItemStack breakingItem = new ItemStack(Material.DIAMOND_PICKAXE);
 		ItemMeta breakingMeta = breakingItem.getItemMeta();
-		if (data.hasUpgrade(Upgrade.FORTUNE)) {
+
+		boolean isSilkTouch = data.hasUpgrade(Upgrade.SILK_TOUCH);
+		boolean isFortune = data.hasUpgrade(Upgrade.FORTUNE);
+
+		if (isFortune) {
 			breakingMeta.addEnchant(Enchantment.LOOT_BONUS_BLOCKS, 2, true);
 		}
-		if (data.hasUpgrade(Upgrade.SILK_TOUCH)) {
+		if (isSilkTouch) {
 			breakingMeta.addEnchant(Enchantment.SILK_TOUCH, 1, true);
 		}
 		breakingItem.setItemMeta(breakingMeta);
 
-		boolean isSilkTouch = data.hasUpgrade(Upgrade.SILK_TOUCH);
-		boolean isFortune = data.hasUpgrade(Upgrade.FORTUNE);
+
 
 		World world = Bukkit.getWorld(data.world);
 		Block chestBlock = world.getBlockAt(data.x, data.y, data.z);
@@ -77,18 +80,21 @@ public class QuarryRunner {
 				}
 
 				if (!doNotMine && data.shouldMine(block.getType())) {
-					Collection<ItemStack> drops = block.getDrops(breakingItem);
-					block.setType(Material.STONE);
-					world.playSound(block.getLocation(), Sound.BLOCK_STONE_BREAK, 1.0f, 1.0f);
 
-					data.blocksMined++;
-
-					if (chestBlock.getType() != Material.CHEST) {
+					if (chestBlock.getType() != Material.CHEST) { // Check this first so no extra block break if quarry is broken
 						System.err.println("Quarry block was destroyed while running. Stopping.");
 						stop(hash);
 						return;
 					}
+
+
+					Collection<ItemStack> drops = block.getDrops(breakingItem);
+					block.setType(Material.STONE);
+					world.playSound(block.getLocation(), Sound.BLOCK_STONE_BREAK, 1.0f, 1.0f);
+					data.blocksMined++;
+
 					Inventory inventory = ((Chest) chestBlock.getState()).getBlockInventory();
+
 					if (!isFortune && !isSilkTouch) {
 						for (ItemStack item : drops) {
 							HashMap<Integer, ItemStack> overload = inventory.addItem(item);
@@ -103,7 +109,7 @@ public class QuarryRunner {
 								return;
 							}
 						}
-					}else{
+					} else{
 						//TODO
 					}
 				}

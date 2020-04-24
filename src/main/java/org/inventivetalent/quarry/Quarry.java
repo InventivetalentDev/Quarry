@@ -2,6 +2,7 @@ package org.inventivetalent.quarry;
 
 import org.bstats.bukkit.MetricsLite;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -33,16 +34,16 @@ import java.util.Set;
 
 public class Quarry extends JavaPlugin implements Listener {
 
-	static final           String      PREFIX               = "§8[§9Quarry§8]§r ";
-	static final           String      TOOLTIP_PREFIX       = "§3[§6!§3]§r ";
+	static final           String      PREFIX               = ChatColor.DARK_GRAY + "[" + ChatColor.BLUE + "Quarry" + ChatColor.DARK_GRAY + "] " + ChatColor.RESET;
+	static final           String      TOOLTIP_PREFIX       = ChatColor.DARK_AQUA + "[" + ChatColor.GOLD + "!" + ChatColor.DARK_AQUA + "] " + ChatColor.RESET;
 	static final           ItemStack[] DISPENSER_LAYOUT     = new ItemStack[] {
 			new ItemStack(Material.REDSTONE), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.REDSTONE),
 			new ItemStack(Material.DIAMOND), new ItemStack(Material.IRON_INGOT), new ItemStack(Material.DIAMOND),
 			new ItemStack(Material.REDSTONE), new ItemStack(Material.DIAMOND), new ItemStack(Material.REDSTONE)
 	};
 	static final           String      DISPENSER_IDENTIFIER = "%%QUARRY%DISPENSER%%";
-	static final           String      CONTROLS_TITLE       = "§5Quarry Controls§r";
-	static final           String      FILTERS_TITLE        = "§bQuarry Filter§r";
+	static final           String      CONTROLS_TITLE       = ChatColor.DARK_PURPLE + "Quarry Controls" + ChatColor.RESET;
+	static final           String      FILTERS_TITLE        = ChatColor.AQUA + "Quarry Filter" + ChatColor.RESET;
 	protected static final String[]    DO_NOT_MINE          = new String[] {
 			"LONG_GRASS",
 			"YELLOW_FLOWER",
@@ -94,7 +95,11 @@ public class Quarry extends JavaPlugin implements Listener {
 
 		Bukkit.getPluginManager().registerEvents(this, this);
 
-		new MetricsLite(this);
+		saveDefaultConfig();
+		if (getConfig().getBoolean("bstats")) {
+			//new MetricsLite(this);
+			getLogger().info("Opt-out of bStats data collection in config.yml");
+		}
 	}
 
 	@Override
@@ -110,27 +115,25 @@ public class Quarry extends JavaPlugin implements Listener {
 			boolean isQuarryStructure = Structure.QUARRY.test(event.getBlock());
 			if (isQuarryStructure) {
 				if (!event.getPlayer().hasPermission("quarry.create")) {
-					event.getPlayer().sendMessage(PREFIX + "§cYou don't have permission to create a quarry!");
+					event.getPlayer().sendMessage(PREFIX + ChatColor.RED + "You don't have permission to create a quarry!");
 					return;
 				}
 
-				/* TODO: get this working...
-				// Rotate the dispenser (just aesthetic stuff, really)
-				Block dispenserBlock = event.getBlock().getRelative(BlockFace.DOWN);
-				Dispenser dispenser= (Dispenser) dispenserBlock.getState().getData();
-				System.out.println(dispenser.getFacing());
-				dispenser.setFacingDirection(BlockFace.DOWN);
-				dispenserBlock.getState().setData(dispenser);
-				dispenserBlock.getState().update();
-				*/
 
 				Block dispenserBlock = event.getBlock().getRelative(BlockFace.DOWN);
 				Dispenser dispenser = (Dispenser) dispenserBlock.getState();
+
 				// Test dispenser content
 				if (!testDispenserContent(dispenser)) {
-					event.getPlayer().sendMessage(PREFIX + "§cInvalid dispenser contents for Quarry");
+					event.getPlayer().sendMessage(PREFIX + ChatColor.RED + "Invalid dispenser contents for Quarry");
 					return;
 				}
+
+				// Setting facing direction
+				org.bukkit.block.data.type.Dispenser dispenserData = (org.bukkit.block.data.type.Dispenser) dispenserBlock.getBlockData();
+				dispenserData.setFacing(BlockFace.DOWN);
+				dispenserBlock.setBlockData(dispenserData);
+				dispenserBlock.getState().update();
 
 				//				dispenser.setCustomName(DISPENSER_IDENTIFIER);
 
@@ -139,8 +142,8 @@ public class Quarry extends JavaPlugin implements Listener {
 				data.owner = event.getPlayer().getUniqueId();
 
 				//TODO: permissions + proper message
-				event.getPlayer().sendMessage(PREFIX + "§aQuarry created!");
-				event.getPlayer().sendMessage(PREFIX + "§7Sneak + Right-Click to open the menu");
+				event.getPlayer().sendMessage(PREFIX + ChatColor.GREEN + "Quarry created!");
+				event.getPlayer().sendMessage(PREFIX + ChatColor.GRAY + "Sneak + Right-Click to open the menu");
 			}
 		}
 	}
@@ -180,16 +183,16 @@ public class Quarry extends JavaPlugin implements Listener {
 				if (isQuarryStructure) {
 					QuarryData data = this.registry.getByLocation(event.getBlock().getLocation());
 					if (data == null) {
-						event.getPlayer().sendMessage(PREFIX + "§o§cInvalid quarry");
+						event.getPlayer().sendMessage(PREFIX + ChatColor.ITALIC + ChatColor.RED + "Invalid quarry");
 						return;
 					}
 					if (!event.getPlayer().getUniqueId().equals(data.owner)) {
 						if (!event.getPlayer().hasPermission("quarry.admin")) {
-							event.getPlayer().sendMessage(PREFIX + "§cYou cannot destroy other players' quarries!");
+							event.getPlayer().sendMessage(PREFIX + ChatColor.RED + "You cannot destroy other players' quarries!");
 							event.setCancelled(true);
 							return;
 						} else {
-							event.getPlayer().sendMessage(PREFIX + "§o§cYou destroyed a quarry that is owned by another player");
+							event.getPlayer().sendMessage(PREFIX + ChatColor.ITALIC + ChatColor.RED + "You destroyed a quarry that is owned by another player");
 						}
 					}
 
@@ -199,7 +202,7 @@ public class Quarry extends JavaPlugin implements Listener {
 					// Unregister
 					this.registry.unregister(event.getBlock().getLocation());
 
-					event.getPlayer().sendMessage(PREFIX + "§cQuarry destroyed");
+					event.getPlayer().sendMessage(PREFIX + ChatColor.RED + "Quarry destroyed");
 				}
 				return;
 			} else if (event.getBlock().getType() == Material.DISPENSER) {
@@ -281,12 +284,12 @@ public class Quarry extends JavaPlugin implements Listener {
 						event.setCancelled(true);
 						QuarryData data = this.registry.getByLocation(event.getClickedBlock().getLocation());
 						if (data == null) {
-							event.getPlayer().sendMessage(PREFIX + "§o§cInvalid quarry");
+							event.getPlayer().sendMessage(PREFIX + ChatColor.ITALIC + ChatColor.RED + "Invalid quarry");
 							return;
 						}
 						if (!event.getPlayer().getUniqueId().equals(data.owner)) {
 							if (!event.getPlayer().hasPermission("quarry.admin")) {
-								event.getPlayer().sendMessage(PREFIX + "§cYou don't have access to this quarry");
+								event.getPlayer().sendMessage(PREFIX + ChatColor.RED + "You don't have access to this quarry");
 								return;
 							}
 						}
@@ -300,25 +303,26 @@ public class Quarry extends JavaPlugin implements Listener {
 	void openControlsInventory(Player player, Location quarryLocation) {
 		QuarryData data = this.registry.getByLocation(quarryLocation);
 		if (data == null) {
-			player.sendMessage(PREFIX + "§o§cInvalid quarry");
+			player.sendMessage(PREFIX + ChatColor.ITALIC + ChatColor.RED + "Invalid quarry");
 			return;
 		}
 
 		Inventory inventory = Bukkit.createInventory(null, 9, CONTROLS_TITLE);
 
-		inventory.setItem(0, makeItem(Material.HOPPER, "§aFilters", Collections.singletonList(TOOLTIP_PREFIX + "§7Click to edit the material filters")));
+		inventory.setItem(0, makeItem(Material.HOPPER, ChatColor.GREEN + "Filters", Collections.singletonList(TOOLTIP_PREFIX + ChatColor.GRAY + "Click to edit the material filters")));
 
-		String sizeTooltip = TOOLTIP_PREFIX + "§7Drag a §8Stone§7, §fIron§7, or §6Gold§7 pressure plate here";
+		String sizeTooltip = TOOLTIP_PREFIX + ChatColor.GRAY + "Drag a " + ChatColor.DARK_GRAY + "Stone" + ChatColor.GRAY + ", "
+				+ ChatColor.WHITE + "Iron" + ChatColor.GRAY + ", or " + ChatColor.GOLD + "Gold" + ChatColor.GRAY + " pressure plate here";
 		if (data.size <= 4) {
-			inventory.setItem(1, makeItem(Material.OAK_PRESSURE_PLATE, "§a8x8 (Default Size)", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.OAK_PRESSURE_PLATE, ChatColor.GREEN + "8x8 (Default Size)", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 8) {
-			inventory.setItem(1, makeItem(Material.STONE_PRESSURE_PLATE, "§bSize: 16x16", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.STONE_PRESSURE_PLATE, ChatColor.AQUA + "Size: 16x16", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 16) {
-			inventory.setItem(1, makeItem(Material.HEAVY_WEIGHTED_PRESSURE_PLATE, "§bSize: 32x32", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.HEAVY_WEIGHTED_PRESSURE_PLATE, ChatColor.AQUA + "Size: 32x32", Collections.singletonList(sizeTooltip)));
 		} else if (data.size == 32) {
-			inventory.setItem(1, makeItem(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "§bSize: 64x64", Collections.singletonList(sizeTooltip)));
+			inventory.setItem(1, makeItem(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, ChatColor.AQUA + "Size: 64x64", Collections.singletonList(sizeTooltip)));
 		} else if (data.size > 32) {
-			ItemStack item = makeItem(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "§b" + (data.size * 2) + "x" + (data.size * 2) + " (Custom Size)", Collections.singletonList(sizeTooltip));
+			ItemStack item = makeItem(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, ChatColor.AQUA + "" + (data.size * 2) + "x" + (data.size * 2) + " (Custom Size)", Collections.singletonList(sizeTooltip));
 			ItemMeta meta = item.getItemMeta();
 			meta.addEnchant(Enchantment.DURABILITY, 1, true);
 			item.setItemMeta(meta);
@@ -329,57 +333,45 @@ public class Quarry extends JavaPlugin implements Listener {
 		//		if (data.hasUpgrade(Upgrade.FORTUNE) || data.hasUpgrade(Upgrade.SILK_TOUCH)) {
 		//			List<String> lore = new ArrayList<>();
 		//			if (data.hasUpgrade(Upgrade.FORTUNE)) {
-		//				lore.add("§7- Fortune");
+		//				lore.add(ChatColor.GRAY + "- Fortune");
 		//			}
 		//			if (data.hasUpgrade(Upgrade.SILK_TOUCH)) {
-		//				lore.add("§7- Silk Touch");
+		//				lore.add(ChatColor.GRAY + "- Silk Touch");
 		//			}
-		//			ItemStack itemStack = makeItem(Material.ENCHANTED_BOOK, "§aEnchantment Upgrades", lore);
+		//			ItemStack itemStack = makeItem(Material.ENCHANTED_BOOK, ChatColor.GREEN + "Enchantment Upgrades", lore);
 		//			inventory.setItem(7, itemStack);
 		//		} else {
-		//			inventory.setItem(7, makeItem(Material.BOOK, "§7No Enchantment upgrades"));
+		//			inventory.setItem(7, makeItem(Material.BOOK, ChatColor.GRAY + "No Enchantment upgrades"));
 		//		}
 
-		String speedTooltip = TOOLTIP_PREFIX + "§7Drag a §8Stone§7, §fIron§7 or §bDiamond§7 pickaxe here";
+		String speedTooltip = TOOLTIP_PREFIX + ChatColor.GRAY + "Drag a " + ChatColor.DARK_GRAY + "Stone" + ChatColor.GRAY + ", "
+				+ ChatColor.WHITE + "Iron" + ChatColor.GRAY + ", or " + ChatColor.AQUA + "Diamond" + ChatColor.GRAY + " pickaxe here";
 		if (data.speed == 0) {
-			inventory.setItem(8, makeItem(Material.WOODEN_PICKAXE, "§aDefault Speed", Collections.singletonList(speedTooltip)));
+			inventory.setItem(8, makeItem(Material.WOODEN_PICKAXE, ChatColor.GREEN + "Default Speed", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 1) {
-			inventory.setItem(8, makeItem(Material.STONE_PICKAXE, "§bSpeed Upgrade 1", Collections.singletonList(speedTooltip)));
+			inventory.setItem(8, makeItem(Material.STONE_PICKAXE, ChatColor.AQUA + "Speed Upgrade 1", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 2) {
-			inventory.setItem(8, makeItem(Material.IRON_PICKAXE, "§bSpeed Upgrade 2", Collections.singletonList(speedTooltip)));
+			inventory.setItem(8, makeItem(Material.IRON_PICKAXE, ChatColor.AQUA + "Speed Upgrade 2", Collections.singletonList(speedTooltip)));
 		} else if (data.speed == 3) {
-			inventory.setItem(8, makeItem(Material.DIAMOND_PICKAXE, "§bSpeed Upgrade 3", Collections.singletonList(speedTooltip)));
+			inventory.setItem(8, makeItem(Material.DIAMOND_PICKAXE, ChatColor.AQUA + "Speed Upgrade 3", Collections.singletonList(speedTooltip)));
 		}
 
 		ItemStack startStopItem;
 		if (data.active) {
-			startStopItem = makeItem(Material.RED_WOOL, "§cStop");
-			startStopItem.setDurability((short) 14);
+			startStopItem = makeItem(Material.RED_WOOL, ChatColor.RED + "Stop");
 
-			//TODO: get this stuff working
-			//			MaterialData materialData = item.getData();
-			//			((Wool) materialData).setColor(DyeColor.RED);
-			//			item.setData(materialData);
-			//			System.out.println(item);
-			//			System.out.println(item.getData());
 		} else {
-			startStopItem = makeItem(Material.GREEN_WOOL, "§aStart");
-			startStopItem.setDurability((short) 13);
-			//			MaterialData materialData = item.getData();
-			//			((Wool) materialData).setColor(DyeColor.GREEN);
-			//			item.setData(materialData);
-			//			System.out.println(item);
-			//			System.out.println(item.getData());
+			startStopItem = makeItem(Material.GREEN_WOOL, ChatColor.GREEN + "Start");
 		}
 		ItemMeta startStopMeta = startStopItem.getItemMeta();
 		startStopMeta.setLore(Arrays.asList(
-				"§r",
-				"§b" + data.blocksScanned + " §7Blocks Scanned",
-				"§b" + data.blocksMined + " §7Blocks Mined",
-				"§b" + data.blocksTotal + " §7Blocks Total",
-				"§r",
-				"§7" + (data.active ? "Currently mining" : "Waiting to mine") + " at",
-				"§b  " + data.digX + " " + data.digY + " " + data.digZ
+				ChatColor.RESET.toString(),
+				ChatColor.AQUA.toString() + data.blocksScanned + ChatColor.GRAY + " Blocks Scanned",
+				ChatColor.AQUA.toString() + data.blocksMined + ChatColor.GRAY + " Blocks Mined",
+				ChatColor.AQUA.toString() + data.blocksTotal + ChatColor.GRAY + " Blocks Total",
+				ChatColor.RESET.toString(),
+				ChatColor.GRAY.toString() + (data.active ? "Currently mining" : "Waiting to mine") + " at:",
+				ChatColor.AQUA.toString() + data.digX + " " + data.digY + " " + data.digZ
 		));
 		startStopItem.setItemMeta(startStopMeta);
 		inventory.setItem(4, startStopItem);
@@ -399,13 +391,13 @@ public class Quarry extends JavaPlugin implements Listener {
 
 				ItemMeta startStopMeta = startStopItem.getItemMeta();
 				startStopMeta.setLore(Arrays.asList(
-						"§r",
-						"§b" + data.blocksScanned + " §7Blocks Scanned",
-						"§b" + data.blocksMined + " §7Blocks Mined",
-						"§b" + data.blocksTotal + " §7Blocks Total",
-						"§r",
-						"§7" + (data.active ? "Currently mining" : "Waiting to mine") + " at",
-						"§b" + data.digX + " " + data.digY + " " + data.digZ
+						ChatColor.RESET.toString(),
+						ChatColor.AQUA.toString() + data.blocksScanned + ChatColor.GRAY + " Blocks Scanned",
+						ChatColor.AQUA.toString() + data.blocksMined + ChatColor.GRAY + " Blocks Mined",
+						ChatColor.AQUA.toString() + data.blocksTotal + ChatColor.GRAY + " Blocks Total",
+						ChatColor.RESET.toString(),
+						ChatColor.GRAY + "" + (data.active ? "Currently mining" : "Waiting to mine") + " at:",
+						ChatColor.AQUA.toString() + data.digX + " " + data.digY + " " + data.digZ
 				));
 				startStopItem.setItemMeta(startStopMeta);
 				inventory.setItem(4, startStopItem);
@@ -420,7 +412,7 @@ public class Quarry extends JavaPlugin implements Listener {
 	void openFilterInventory(Player player, Location quarryLocation) {
 		QuarryData data = this.registry.getByLocation(quarryLocation);
 		if (data == null) {
-			player.sendMessage(PREFIX + "§cInvalid quarry!");
+			player.sendMessage(PREFIX + ChatColor.RED + "Invalid quarry!");
 			return;
 		}
 
@@ -431,10 +423,10 @@ public class Quarry extends JavaPlugin implements Listener {
 		}
 
 		if (data.filterMode == FilterMode.WHITELIST) {
-			ItemStack item = makeItem(Material.WHITE_WOOL, "§aFilter Mode", Collections.singletonList("§fWhitelist"));
+			ItemStack item = makeItem(Material.WHITE_WOOL, ChatColor.GREEN + "Filter Mode", Collections.singletonList(ChatColor.WHITE + "Whitelist"));
 			inventory.setItem(26, item);
 		} else if (data.filterMode == FilterMode.BLACKLIST) {
-			ItemStack item = makeItem(Material.BLACK_WOOL, "§aFilter Mode", Collections.singletonList("§8Blacklist"));
+			ItemStack item = makeItem(Material.BLACK_WOOL, ChatColor.GREEN + "Filter Mode", Collections.singletonList(ChatColor.DARK_GRAY + "Blacklist"));
 			inventory.setItem(26, item);
 		}
 
@@ -452,13 +444,13 @@ public class Quarry extends JavaPlugin implements Listener {
 			if (event.getCurrentItem() != null) {
 				Block targetBlock = event.getWhoClicked().getTargetBlock((Set<Material>) null, 5);
 				if (targetBlock == null) {
-					event.getWhoClicked().sendMessage(PREFIX + "§cNot looking at a quarry block");
+					event.getWhoClicked().sendMessage(PREFIX + ChatColor.RED + "Not looking at a quarry block");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
 				QuarryData data = this.registry.getByLocation(targetBlock.getLocation());
 				if (data == null) {
-					event.getWhoClicked().sendMessage(PREFIX + "§cInvalid quarry");
+					event.getWhoClicked().sendMessage(PREFIX + ChatColor.RED + "Invalid quarry");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
@@ -472,11 +464,11 @@ public class Quarry extends JavaPlugin implements Listener {
 						this.runner.stop(data.getHash());
 
 						data.active = false;
-						event.getWhoClicked().sendMessage(PREFIX + "§bQuarry stopped");
+						event.getWhoClicked().sendMessage(PREFIX + ChatColor.AQUA + "Quarry stopped");
 					} else {
 						this.runner.start(data);
 
-						event.getWhoClicked().sendMessage(PREFIX + "§bQuarry started");
+						event.getWhoClicked().sendMessage(PREFIX + ChatColor.AQUA + "Quarry started");
 					}
 					event.getWhoClicked().closeInventory();
 				} else if (item.getType() == Material.WOODEN_PICKAXE || item.getType() == Material.STONE_PICKAXE || item.getType() == Material.IRON_PICKAXE || item.getType() == Material.DIAMOND_PICKAXE) {
@@ -491,7 +483,14 @@ public class Quarry extends JavaPlugin implements Listener {
 					} else {
 						return;
 					}
-					event.setCurrentItem(null);
+
+					// So it doesn't gobble pickaxe stacks (if the player uses them, for whatever reason)
+					if (event.getCurrentItem().getAmount() > 1) {
+						item.setAmount(item.getAmount() - 1);
+					} else {
+						event.setCurrentItem(null);
+					}
+
 					event.setCancelled(false);
 
 					Bukkit.getScheduler().runTaskLater(this, () -> {
@@ -552,19 +551,19 @@ public class Quarry extends JavaPlugin implements Listener {
 //			if (event.getCurrentItem() != null) {
 				Block targetBlock = event.getWhoClicked().getTargetBlock((Set<Material>) null, 5);
 				if (targetBlock == null) {
-					event.getWhoClicked().sendMessage(PREFIX + "§cNot looking at a quarry block");
+					event.getWhoClicked().sendMessage(PREFIX + ChatColor.RED + "Not looking at a quarry block");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
 				QuarryData data = this.registry.getByLocation(targetBlock.getLocation());
 				if (data == null) {
-					event.getWhoClicked().sendMessage(PREFIX + "§cInvalid quarry");
+					event.getWhoClicked().sendMessage(PREFIX + ChatColor.RED + "Invalid quarry");
 					event.getWhoClicked().closeInventory();
 					return;
 				}
 
 				ItemStack item = event.getCurrentItem();
-				if (item!=null&&item.getType().name().contains("_WOOL") && "§aFilter Mode".equals(item.getItemMeta().getDisplayName())) {// filter mode toggle
+				if (item!=null&&item.getType().name().contains("_WOOL") && (ChatColor.GREEN.toString() + "Filter Mode").equals(item.getItemMeta().getDisplayName())) {// filter mode toggle
 					if (data.filterMode == FilterMode.WHITELIST) {
 						data.filterMode = FilterMode.BLACKLIST;
 					} else {
