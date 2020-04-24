@@ -97,7 +97,7 @@ public class Quarry extends JavaPlugin implements Listener {
 
 		saveDefaultConfig();
 		if (getConfig().getBoolean("bstats")) {
-			//new MetricsLite(this);
+			new MetricsLite(this);
 			getLogger().info("Opt-out of bStats data collection in config.yml");
 		}
 	}
